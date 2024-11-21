@@ -26,5 +26,11 @@
 /*/*.njsproj
 /*/*.sln
 /*/*.sw?
+/*/__pycache__
 
 /*/*.tsbuildinfo
+
+#.venv
+/*/.venv
+
+
