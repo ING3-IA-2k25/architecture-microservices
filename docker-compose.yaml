@@ -21,6 +21,7 @@ services:
     restart: always
     volumes:
       - ./bdd/db-data/:/var/lib/postgresql/data
+      - ./bdd/sql:/bdd/
     env_file:
       - .env  
     ports:
@@ -36,7 +37,8 @@ services:
       - .env
     ports:
       - "15432:80"
-
+    networks:
+        - app-network
 
 networks:
     app-network:
