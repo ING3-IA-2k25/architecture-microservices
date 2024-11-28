@@ -33,4 +33,5 @@
 #.venv
 .venv
 
-
+#bdd 
+bdd/db-data
