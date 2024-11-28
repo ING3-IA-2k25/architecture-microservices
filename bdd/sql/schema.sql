@@ -1,8 +1,10 @@
+-- Create the producer table with SERIAL id
 CREATE TABLE producer (
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL
 );
 
+-- Create the coords_gps table with foreign key
 CREATE TABLE coords_gps (
     producer_id INTEGER NOT NULL,  -- Foreign key referencing producer(id)
     latitude DECIMAL(9,6) NOT NULL,
