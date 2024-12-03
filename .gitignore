@@ -35,3 +35,10 @@
 
 #bdd 
 bdd/db-data
+
+#env
+*.env
+
+# Bruno config
+bruno*
+*.bru
