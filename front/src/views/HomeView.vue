@@ -9,11 +9,13 @@ const zoom = ref(12)
 const center = ref([43.299999, -0.370000])
 
 import { useProducersStore } from '@/stores/producers';
+import { useCoordsStore } from '@/stores/coords';
 const producersStore = useProducersStore();
+const coordsStore = useCoordsStore();
 
 // make sure the loopback is enable
 producersStore.enableLoopback();
-
+coordsStore.enableLoopback();
 
 </script>
 
