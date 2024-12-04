@@ -7,6 +7,14 @@ import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
 const zoom = ref(12)
 const center = ref([43.299999, -0.370000])
+
+import { useProducersStore } from '@/stores/producers';
+const producersStore = useProducersStore();
+
+// make sure the loopback is enable
+producersStore.enableLoopback();
+
+
 </script>
 
 <template>
@@ -34,7 +42,9 @@ const center = ref([43.299999, -0.370000])
 
         <div class="absolute m-0 p-10! h-full w-25">
           <div class="bg-ctp-mocha-pink h-full w-full" id="mapContainer">
-
+            <p v-for="producer in producersStore.getAllProducersName">
+              {{ producer }}
+            </p>
           </div>
         </div>
 
