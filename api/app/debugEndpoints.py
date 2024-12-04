@@ -17,8 +17,24 @@ router = APIRouter()
 
 @router.post("/producers")
 async def get_producers(producer: ProducerInput):
-    return query.create_producer(name=producer.name)
+    output = None
+    try:
+        output = query.create_producer(name = producer.name)
+        query._conn.commit()
+    except Exception as e:
+        return {"error": str(e)}
+
+    return output
 
 @router.post("/coords")
 async def get_coords(coords: CoordsInput):
-    return query.create_coords(producer_id=coords.producer_id, uid=coords.uid, latitude=coords.latitude, longitude=coords.longitude)
+    output = None
+    try:
+        output = query.create_coords_gps(producer_id=coords.producer_id, uid=coords.uid, latitude=coords.latitude, longitude=coords.longitude)
+        query._conn.commit()
+    except Exception as e:
+        query._conn.rollback()
+        return {"error": str(e)}
+
+    return output
+    
