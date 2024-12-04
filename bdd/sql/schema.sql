@@ -7,6 +7,7 @@ CREATE TABLE producer (
 -- Create the coords_gps table with foreign key
 CREATE TABLE coords_gps (
     producer_id INTEGER NOT NULL,  -- Foreign key referencing producer(id)
+    uid SERIAL PRIMARY KEY NOT NULL UNIQUE, -- Unique identifier
     latitude DECIMAL(9,6) NOT NULL,
     longitude DECIMAL(9,6) NOT NULL,
     CONSTRAINT coords_gps_latitude_check CHECK (latitude >= -90 AND latitude <= 90),
