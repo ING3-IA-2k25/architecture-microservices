@@ -1,6 +1,6 @@
 -- Create the producer table with SERIAL id
 CREATE TABLE producer (
-    id SERIAL PRIMARY KEY NOT NULL,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL
 );
 
