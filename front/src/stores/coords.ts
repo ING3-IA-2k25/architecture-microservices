@@ -47,7 +47,6 @@ export const useCoordsStore = defineStore("coords", {
 
 
     async getAllCoords() : Promise<GPS_Coords[]> {
-      console.debug('getAllCoords');
       // fetch the producers from the API
       const response = fetch(API_URL + "/api/coords/all");
       const output =  await response;
@@ -55,13 +54,11 @@ export const useCoordsStore = defineStore("coords", {
       // get the producers
       const coords = await output.json();
 
-      console.log(toRaw(coords));
       return coords as GPS_Coords[];
     },
 
     private_addNewProducers(coords: GPS_Coords[]) {
 
-      console.log('private_addNewProducers');
 
       // add unique producers to the store
       coords.forEach((coord: GPS_Coords) => {
@@ -70,7 +67,6 @@ export const useCoordsStore = defineStore("coords", {
         }
       });
 
-      console.debug(toRaw(this.coords));
     },
 
 
@@ -90,7 +86,6 @@ export const useCoordsStore = defineStore("coords", {
         setInterval(async () => {
           const prod = await this.getAllCoords();
           this.private_addNewProducers(prod);
-          console.log(toRaw(this.coords));
         }, 2000);
       }
     }
