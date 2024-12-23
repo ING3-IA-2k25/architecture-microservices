@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Producer, ProducersMetaData } from "@/types/producer.types";
 import type { Static } from "vue";
 
 // TODO: change variable to env variable
@@ -7,13 +8,6 @@ const API_URL = "http://localhost:8000"
 
 // define a variable to enable the loopback (call api automatically every 2 seconds)
 let loopback : boolean = true;
-
-// define a producer type
-export interface Producer {
-  id: number;
-  name: string;
-  selected: boolean;
-}
 
 // Define a new store
 export const useProducersStore = defineStore("producers", {
@@ -27,20 +21,27 @@ export const useProducersStore = defineStore("producers", {
 
   getters: {
     // return the selected producers
-    getSelectedProducersName(): string[] {
+    getSelectedProducersData(): ProducersMetaData[] {
       const selected: Producer[] = this.producers.filter((producer: Producer) => producer.selected);
 
       // const url = process.env.API_URL
       // console.log(url)
       // return the selected producers names
-      const selectedNames: string[] = selected.map((producer: Producer) => producer.name);
+      const selectedNames: ProducersMetaData[] = selected.map(
+        (producer: Producer) => {
+          return { name: producer.name, online: true, selected: producer.selected };
+      });
       return selectedNames;
     },
 
     // return the selected producers names
-    getAllProducersName(): string[] {
+    getAllProducersData(): ProducersMetaData[] {
       // return the selected producers names
-      const allNames: string[] = this.producers.map((producer: Producer) => producer.name);
+      const allNames: ProducersMetaData[] = this.producers.map((producer: Producer) => {
+        return { name: producer.name, online: true, selected: producer.selected };
+      });
+
+      console.log(allNames);
       return allNames;
     },
 

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type {GPS_Coords} from '@/types/gps_coord.types';
 import { toRaw } from "vue";
 
 // TODO: change variable to env variable
@@ -6,13 +7,6 @@ const API_URL = "http://localhost:8000";
 
 let loopback : boolean = true;
 
-// define a GPS_Coords type
-export interface GPS_Coords {
-  producer_uid: number;
-  uid: number;
-  latitude: number;
-  longitude: number;
-}
 
 // Define a new store
 export const useCoordsStore = defineStore("coords", {
