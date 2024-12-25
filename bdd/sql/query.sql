@@ -9,14 +9,12 @@ INSERT INTO producer (
 -- name: CreateCoords_gps :one
 INSERT INTO coords_gps (
     producer_id,
-    uid,
     latitude,
     longitude
 ) VALUES (
     $1,
     $2,
-    $3,
-    $4
+    $3
 ) RETURNING *;
 
 -- name: GetProducerByName :one
