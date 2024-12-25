@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// components
+import UserCard from '@/components/UserCard.vue';
+
 /* eslint-disable*/
 import { onMounted, ref } from 'vue';
 import "leaflet/dist/leaflet.css";
@@ -43,10 +46,14 @@ coordsStore.enableLoopback();
       <div id="right-col" class="h-full w-25">
 
         <div class="absolute m-0 p-10! h-full w-25">
-          <div class="bg-ctp-mocha-pink h-full w-full" id="mapContainer">
-            <p v-for="producer in producersStore.getAllProducersName">
-              {{ producer }}
-            </p>
+          <div class=" h-full w-full" id="mapContainer">
+
+            <user-card
+              v-for="producer in producersStore.producers"
+              @emit-select="() => {producer.selected = !producer.selected}" :name="producer.name" :selected="producer.selected" :online="false">
+              {{ producer.name }}
+            </user-card>
+
           </div>
         </div>
 
