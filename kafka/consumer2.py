@@ -5,7 +5,6 @@ from kafka import KafkaConsumer
 import asyncio
 import websockets
 import threading
-import requests
 import json
 import logging
 import httpx

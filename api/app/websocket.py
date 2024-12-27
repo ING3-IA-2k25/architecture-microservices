@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, APIRouter
+from fastapi import WebSocket, APIRouter
 from app.bdd import query
 import asyncio
 
@@ -87,6 +87,7 @@ async def websocket_endpoint_consumer(websocket: WebSocket):
             lon = float(lon)
 
             # send data to postgre
+            # TODO : change to async queries
             query.create_coords_gps(producer_id = uid, latitude = lat, longitude = lon)
             query._conn.commit()
 
