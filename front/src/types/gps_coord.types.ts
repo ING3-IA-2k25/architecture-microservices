@@ -8,7 +8,15 @@ export interface GPS_Coords {
   longitude: number;
 }
 
+export type GPS_position = {
+  lat: number;
+  lon: number;
+};
 
+export type GPS_state = {
+  producer_id: number;
+  coords: GPS_position[];
+};
 
 export type CustomMarker = {
   gpsCoords: GPS_Coords;

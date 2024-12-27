@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import type {GPS_Coords} from '@/types/gps_coord.types';
-import { toRaw } from "vue";
-
+import type { GPS_Coords} from '@/types/gps_coord.types';
+import type { GPS_state } from '@/types/gps_coord.types';
+import type { GPS_position } from '@/types/gps_coord.types';
 // TODO: change variable to env variable
 const API_URL = "http://localhost:8000";
 
@@ -11,26 +11,48 @@ let loopback : boolean = true;
 // Define a new store
 export const useCoordsStore = defineStore("coords", {
 
-  state: () => ({
-    coords: [
-      { producer_uid: 18, uid:-1, latitude: 0, longitude: 0 },
-    ] as GPS_Coords[],
+  state: () =>  ({
+      //coords: [] as GPS_state[]
+      prod2coords: new Map<number, GPS_position[]>()
   }),
 
 
   getters: {
-    getCoordsByUid: (state) => {
+    getCoordsByUid: (state) =>{
 
-      return (uid: number): GPS_Coords[] => {
-        return state.coords.filter((coord: GPS_Coords) => coord.producer_uid === uid);
+      return (uid: number): GPS_position[] => {
+        //const producer_data : GPS_state[] = state.coords.filter((coord: GPS_state) => coord.producer_id === uid);
+        const producer_coords: GPS_position[] = state.prod2coords.get(uid) ?? [];
+
+        /*  old stuff
+        if (producer_data.length === 0) {
+          return [];
+        }
+
+        if (producer_data.length > 1) {
+          console.error("multiple producers with the same uid");
+        }
+        */
+
+        return producer_coords;
       }
 
     },
 
+
     getCoordsByUids: (state) => {
 
-      return (uids: number[]): GPS_Coords[] => {
-        return state.coords.filter((coord: GPS_Coords) => uids.includes(coord.producer_uid));
+      return (uids: number[]): GPS_state[] => {
+        //const producers_data : GPS_state[] = state.coords.filter((coord: GPS_state) => uids.includes(coord.producer_id));
+
+        const producers_data : GPS_state[] = [];
+        uids.forEach((uid: number) => {
+          const producer_coords: GPS_position[] = state.prod2coords.get(uid) ?? [];
+
+          producers_data.push({producer_id: uid, coords: producer_coords});
+        });
+
+        return producers_data;
       }
 
     },
@@ -40,17 +62,54 @@ export const useCoordsStore = defineStore("coords", {
   actions: {
 
 
-    async getAllCoords() : Promise<GPS_Coords[]> {
+    async getAllCoords() : Promise<Map<number, GPS_position[]>>{
       // fetch the producers from the API
       const response = fetch(API_URL + "/api/coords/all");
       const output =  await response;
 
       // get the producers
-      const coords = await output.json();
+      const coords = await output.json() as GPS_Coords[];
 
-      return coords as GPS_Coords[];
+      // format the producers
+      const mapPro2Coords = new Map<number, GPS_position[]>();
+
+      // group coords by their producer's id
+      coords.forEach((coord: GPS_Coords) => {
+        if (!mapPro2Coords.has(coord.producer_uid)) {
+          mapPro2Coords.set(coord.producer_uid, []);
+        }
+
+        const gps : GPS_position = {
+          lat: coord.latitude,
+          lon: coord.longitude,
+        };
+
+        mapPro2Coords.get(coord.producer_uid)!.push(gps);
+      });
+
+      // format the producers
+      //const producers : GPS_state[] = [];
+      //mapPro2Coords.forEach((coords: GPS_position[], producer_id: number) => {
+      //  producers.push({producer_id, coords});
+      //});
+
+      //return producers;
+      return mapPro2Coords;
     },
 
+
+
+    addNewCoord(gps: GPS_position, producer_id: number) {
+      if (!this.prod2coords.has(producer_id)) {
+        this.prod2coords.set(producer_id, []);
+      }
+
+      this.prod2coords.get(producer_id)!.push(gps);
+    }
+
+
+
+    /*
     private_addNewProducers(coords: GPS_Coords[]) {
 
 
@@ -64,6 +123,7 @@ export const useCoordsStore = defineStore("coords", {
     },
 
 
+    // old function to do api polling every 2s
     async enableLoopback() : Promise<void> {
 
       // if it's the first time we call the API, we start the loopback
@@ -83,6 +143,9 @@ export const useCoordsStore = defineStore("coords", {
         }, 2000);
       }
     }
+    */
+
+
   },
 
 });

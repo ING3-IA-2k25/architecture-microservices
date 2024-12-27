@@ -3,7 +3,7 @@
 import UserCard from '@/components/UserCard.vue';
 
 /* eslint-disable*/
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onUpdated} from 'vue';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet'
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
@@ -18,14 +18,43 @@ const coordsStore = useCoordsStore();
 
 // make sure the loopback is enable
 producersStore.enableLoopback();
-coordsStore.enableLoopback();
-
+//coordsStore.enableLoopback();
+//
 import { useLeafletMap } from "@/composables/useLeafletMap";
-const { initMap } = useLeafletMap();
+const { initMap , addGPSMarker } = useLeafletMap();
+
+// add a marker on the map
+import type { GPS_Coords } from "@/types/gps_coord.types";
+
+
+
+
+const gps: GPS_Coords = {
+  producer_uid: 1,
+  uid: 1,
+  latitude: 43.2996,
+  longitude: -0.370000,
+}
+
+const gps2: GPS_Coords = {
+  producer_uid: 1,
+  uid: 1,
+  latitude: 43.29955,
+  longitude: -0.370000,
+}
 
 onMounted(() => {
   initMap('map');
+  addGPSMarker(gps);
+  addGPSMarker(gps2);
 });
+
+
+
+onUpdated(() => {
+  console.log('mounted')
+});
+
 
 </script>
 

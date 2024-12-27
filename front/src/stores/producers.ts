@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import type { Producer, ProducersMetaData } from "@/types/producer.types";
-import type { Static } from "vue";
 
 // TODO: change variable to env variable
 //        (it rly start to piss me off so I let someone else do it)
