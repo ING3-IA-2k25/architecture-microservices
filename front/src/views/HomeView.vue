@@ -8,8 +8,8 @@ import "leaflet/dist/leaflet.css";
 import L from 'leaflet'
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-const zoom = ref(12)
-const center = ref([43.299999, -0.370000])
+//const zoom = ref(12)
+//const center = ref([43.299999, -0.370000])
 
 import { useProducersStore } from '@/stores/producers';
 import { useCoordsStore } from '@/stores/coords';
@@ -19,6 +19,13 @@ const coordsStore = useCoordsStore();
 // make sure the loopback is enable
 producersStore.enableLoopback();
 coordsStore.enableLoopback();
+
+import { useLeafletMap } from "@/composables/useLeafletMap";
+const { initMap } = useLeafletMap();
+
+onMounted(() => {
+  initMap('map');
+});
 
 </script>
 
@@ -30,14 +37,7 @@ coordsStore.enableLoopback();
 
         <!-- div pour la map center -->
         <div class="absolute p-15! h-full w-full">
-          <div class="bg-ctp-latte-mauve h-full w-full" ref="mapDiv">
-            <l-map ref="map" v-model:zoom="zoom" :center="center" :use-global-leaflet="false">
-            <l-tile-layer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              layer-type="base"
-              name="OpenStreetMap"
-            ></l-tile-layer>
-          </l-map>
+          <div class="bg-ctp-latte-mauve h-full w-full" ref="mapDiv" id="map">
           </div>
         </div>
       </div>
