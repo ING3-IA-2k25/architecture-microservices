@@ -12,7 +12,7 @@ async def get_tables():
 async def get_producers():
     return query.get_all_producers()
 
-@router.get("/producers/{producer_name}")
+@router.get("/producers/name/{producer_name}")
 async def get_producer_by_name(producer_name: str):
     return query.get_producer_by_name(name = producer_name)
 
@@ -24,7 +24,10 @@ async def get_coords():
 async def get_coords_by_id(producer_id: int):
     return query.get_coords_gps_by_producer_id(producer_id = producer_id)
 
-
+@router.get("/producers/id/{producer_uid}")
+async def get_producer_by_uid(producer_uid: int):
+    print("Querying producer by id")
+    return query.get_producer_by_id(id = producer_uid)
 
 
 

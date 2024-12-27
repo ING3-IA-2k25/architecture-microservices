@@ -21,6 +21,10 @@ INSERT INTO coords_gps (
 SELECT * FROM producer 
 WHERE name = $1;
 
+-- name: GetProducerById :one
+SELECT * FROM producer 
+WHERE id = $1;
+
 -- name: GetCoordsGpsByProducerId :one
 SELECT * FROM coords_gps 
 WHERE producer_id = $1;

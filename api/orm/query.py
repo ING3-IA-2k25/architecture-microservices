@@ -54,6 +54,12 @@ WHERE producer_id = :p1
 """
 
 
+GET_PRODUCER_BY_ID = """-- name: get_producer_by_id \\:one
+SELECT id, name FROM producer 
+WHERE id = :p1
+"""
+
+
 GET_PRODUCER_BY_NAME = """-- name: get_producer_by_name \\:one
 SELECT id, name FROM producer 
 WHERE name = :p1
@@ -116,6 +122,15 @@ class Querier:
             uid=row[1],
             latitude=row[2],
             longitude=row[3],
+        )
+
+    def get_producer_by_id(self, *, id: int) -> Optional[models.Producer]:
+        row = self._conn.execute(sqlalchemy.text(GET_PRODUCER_BY_ID), {"p1": id}).first()
+        if row is None:
+            return None
+        return models.Producer(
+            id=row[0],
+            name=row[1],
         )
 
     def get_producer_by_name(self, *, name: str) -> Optional[models.Producer]:
@@ -184,6 +199,15 @@ class AsyncQuerier:
             uid=row[1],
             latitude=row[2],
             longitude=row[3],
+        )
+
+    async def get_producer_by_id(self, *, id: int) -> Optional[models.Producer]:
+        row = (await self._conn.execute(sqlalchemy.text(GET_PRODUCER_BY_ID), {"p1": id})).first()
+        if row is None:
+            return None
+        return models.Producer(
+            id=row[0],
+            name=row[1],
         )
 
     async def get_producer_by_name(self, *, name: str) -> Optional[models.Producer]:
