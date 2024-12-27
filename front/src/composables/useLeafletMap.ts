@@ -3,9 +3,10 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import L from 'leaflet';
 import GPSMarkerService  from "@/services/gpsMarkerService"
 import MapService from '@/services/mapService';
-import type { GPS_Coords } from '@/types/gps_coord.types';
 import type { GPS_position } from '@/types/gps_coord.types';
+import type { GPS_Coords }  from '@/types/gps_coord.types';
 import { useCoordsStore } from '@/stores/coords';
+import { useProducersStore } from '@/stores/producers';
 //import { useMetrographStore } from '@/stores/metrograph';
 //import StationMarkerService from '@/services/StationMarkerService';
 //import ConnectionLineService from '@/services/ConnectionLineService';
@@ -16,14 +17,11 @@ const mapInstance = ref<L.Map | null>(null);
 
 
 export function useLeafletMap() {
-  //const store = useMetrographStore();
-  //
+
   const mapService = new MapService();
   const gpsMarkerService = GPSMarkerService.getInstance();
   const coordsStore = useCoordsStore();
-  //const connectionService = new ConnectionLineService();
-  //const stationService = new StationMarkerService();
-
+  const producersStore = useProducersStore();
 
   const initMap = (elementId: string, lat: number = 43.3, lon: number =  -0.37, zoom: number = 12) => {
     const mapCenter = new L.LatLng(lat, lon);
@@ -59,9 +57,19 @@ export function useLeafletMap() {
   };
 
 
-  const addGPSMarker = (gps: GPS_Coords) => {
+  const addGPSMarker = async (gps: GPS_Coords) => {
     if (!mapInstance.value) {
       return;
+    }
+
+    // check if the producer exists
+   if (!producersStore.exists(gps.producer_uid)) {
+      // if not we add it
+      await producersStore.addNewProducerByUid(gps.producer_uid);
+    }
+    else {
+      // if it exists, reset the timeout
+      producersStore.resetTimeout(gps.producer_uid);
     }
 
     // add the marker to the map

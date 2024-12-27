@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
-import type { Producer, ProducersMetaData } from "@/types/producer.types";
+import type { Producer} from "@/types/producer.types";
+import type { ProducersMetaData } from "@/types/producer.types";
+import type { ProducerApiResponse } from "@/types/producer.types";
 
 // TODO: change variable to env variable
 //        (it rly start to piss me off so I let someone else do it)
 const API_URL = "http://localhost:8000"
-
+const DELAY_MS_BEFORE_OFFLINE = 5000;
 // define a variable to enable the loopback (call api automatically every 2 seconds)
 let loopback : boolean = true;
 
@@ -12,9 +14,7 @@ let loopback : boolean = true;
 export const useProducersStore = defineStore("producers", {
 
   state: () => ({
-    producers: [
-      { id: -1, name: "DEFAULT", selected: false },
-    ] as Producer[],
+    producers: [] as Producer[],
   }),
 
 
@@ -67,6 +67,82 @@ export const useProducersStore = defineStore("producers", {
       return data
     },
 
+
+
+
+    // set the producer offline
+    setProducerOffline(uid: number) : void {
+
+      for (let i = 0; i < this.producers.length; i++) {
+
+        if (this.producers[i].id === uid) {
+          this.producers[i].online = false;
+          clearTimeout(this.producers[i].timeout);
+          return;
+        }
+
+      }
+    },
+
+
+    // reset the timeout before setting the producer offline
+    resetTimeout(uid: number) : void {
+
+      for (let i = 0; i < this.producers.length; i++) {
+
+        if (this.producers[i].id === uid) {
+          clearTimeout(this.producers[i].timeout);
+          this.producers[i].timeout = setTimeout(() => {
+            this.setProducerOffline(uid);
+          }, DELAY_MS_BEFORE_OFFLINE);
+          return;
+        }
+
+      }
+
+    },
+
+    async addNewProducerByUid(uid: number) {
+      // fetch the producer from the API
+      const promise : Promise<Response> = fetch(API_URL + "/api/producers/id/" + uid);
+      const response =  await promise;
+
+      if (response.status !== 200) {
+        console.error("Error: " + response.status);
+        return;
+      }
+
+      const prod = await response.json() as ProducerApiResponse;
+
+
+      // add the producer to the store
+      this.producers.push({
+        id: prod.id,
+        name: prod.name,
+        selected: false,
+        online: true,
+        timeout: setTimeout(() => {
+          this.setProducerOffline(prod.id);
+        }, DELAY_MS_BEFORE_OFFLINE),
+      });
+    },
+
+
+    // return if producers uid exists
+    exists(uid: number): boolean {
+
+      for (let i = 0; i < this.producers.length; i++) {
+        if (this.producers[i].id === uid) {
+          return true;
+        }
+      }
+
+      return false
+    },
+
+
+
+/* old stuff, using api polling
     addNewProducers(prod: Producer[]) {
       // add unique producers to the store
       prod.forEach((producer: Producer) => {
@@ -75,9 +151,6 @@ export const useProducersStore = defineStore("producers", {
         }
       });
     },
-
-
-
 
     async enableLoopback() : Promise<void> {
 
@@ -98,6 +171,8 @@ export const useProducersStore = defineStore("producers", {
         }, 2000);
       }
     }
-
+*/
   },
+
+
 });

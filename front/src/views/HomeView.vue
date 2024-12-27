@@ -17,7 +17,7 @@ const producersStore = useProducersStore();
 const coordsStore = useCoordsStore();
 
 // make sure the loopback is enable
-producersStore.enableLoopback();
+//producersStore.enableLoopback();
 //coordsStore.enableLoopback();
 //
 import { useLeafletMap } from "@/composables/useLeafletMap";
@@ -27,25 +27,23 @@ const { initMap , addGPSMarker } = useLeafletMap();
 import type { GPS_Coords } from "@/types/gps_coord.types";
 
 
-
-
 const gps: GPS_Coords = {
-  producer_uid: 1,
+  producer_uid: 5,
   uid: 1,
   latitude: 43.2996,
   longitude: -0.370000,
 }
 
 const gps2: GPS_Coords = {
-  producer_uid: 1,
+  producer_uid: 5,
   uid: 1,
   latitude: 43.29955,
   longitude: -0.370000,
 }
 
-onMounted(() => {
+onMounted(async () => {
   initMap('map');
-  addGPSMarker(gps);
+  await addGPSMarker(gps);
   addGPSMarker(gps2);
 });
 
@@ -79,7 +77,7 @@ onUpdated(() => {
 
             <user-card
               v-for="producer in producersStore.producers"
-              @emit-select="() => {producer.selected = !producer.selected}" :name="producer.name" :selected="producer.selected" :online="false">
+              @emit-select="() => {producer.selected = !producer.selected}" :name="producer.name" :selected="producer.selected" :online="producer.online">
               {{ producer.name }}
             </user-card>
 

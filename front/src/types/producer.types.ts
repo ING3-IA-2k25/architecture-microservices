@@ -1,12 +1,20 @@
 // define a producer type
-export interface Producer {
+export type Producer = {
   id: number;
   name: string;
   selected: boolean;
+  online: boolean;
+  timeout: number;
 }
 
+export type ProducerApiResponse = {
+  id: number;
+  name: string;
+}
+
+
 // define meta datas for producers
-export interface ProducersMetaData {
+export type ProducersMetaData = {
   name: string;
   online: boolean;
   selected: boolean;
