@@ -1,34 +1,38 @@
-version: '3'
 services:
   fastapi:
-    container_name: fastapi_AM
+    container_name: ${FASTAPI_CONTAINER_NAME}
     build:
       context: ./api/
       dockerfile: fastapi.Dockerfile
     tty: true
     restart: unless-stopped
     ports:
-      - "7000:8000"
+      - "${FASTAPI_PORT}:${FASTAPI_PORT}"
     # volumes:
     #   - .api/volume:/code/volume  
     networks:
       - app-network
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "${FASTAPI_PORT}"]
+
 
   postgres:
-    container_name: postgres_AM
+    container_name: ${POSTGRES_CONTAINER_NAME} 
     image: postgres
     restart: always
     volumes:
-      - ./bdd/db-data/:/var/lib/postgresql/data
+      # - ./bdd/db-data/:/var/lib/postgresql/data
       - ./bdd/sql:/docker-entrypoint-initdb.d
     env_file:
       - .env  
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     networks:
       - app-network
-      
+
   pgadmin:
     container_name: pgadmin4_AM-DO-NOT-KEEP-IN-PRODUCTION
     image: dpage/pgadmin4
@@ -36,9 +40,25 @@ services:
     env_file:
       - .env
     ports:
-      - "15432:80"
+      - "${PGADMIN_PORT}:80"
     networks:
         - app-network
+
+
+  vue:
+    container_name: ${VITE_CONTAINER_NAME}
+    build:
+      context: ./front/
+      dockerfile: vue.dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${VITE_PORT}:80"
+    networks:
+      - app-network
+    depends_on:
+      - fastapi
 
 networks:
     app-network:
