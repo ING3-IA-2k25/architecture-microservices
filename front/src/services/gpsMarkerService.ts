@@ -24,7 +24,6 @@ export default class GPSMarkerService {
   }
 
   public addMarker(map: L.Map, gpsCoords: GPS_position, producer_id: number): void {
-    console.debug('Adding marker...');
 
     const circle = L.circle(
       [gpsCoords.lat, gpsCoords.lon],
@@ -68,7 +67,6 @@ export default class GPSMarkerService {
 
 
   public removeMarkers(): void {
-    console.debug('Removing all markers...');
 
     for (const circles of this.markersIdx2LeafMarker.values()) {
       circles.forEach((circle) => circle.remove());
@@ -78,7 +76,6 @@ export default class GPSMarkerService {
   }
 
   public removeMarkerOfId(id: number) : void {
-    console.debug(`Removing marker of id ${id}...`);
 
     const idxCircles = this.markersIdx2LeafMarker.get(id);
 

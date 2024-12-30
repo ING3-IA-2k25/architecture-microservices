@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 import type { GPS_Coords} from '@/types/gps_coord.types';
 import type { GPS_state } from '@/types/gps_coord.types';
 import type { GPS_position } from '@/types/gps_coord.types';
-// TODO: change variable to env variable
-const API_URL = "http://localhost:8000";
+
+const API_URL = import .meta.env.VITE_API_URL as string;
 
 let loopback : boolean = true;
 

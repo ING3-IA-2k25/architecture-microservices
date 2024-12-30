@@ -3,10 +3,8 @@ import type { Producer} from "@/types/producer.types";
 import type { ProducersMetaData } from "@/types/producer.types";
 import type { ProducerApiResponse } from "@/types/producer.types";
 
-// TODO: change variable to env variable
-//        (it rly start to piss me off so I let someone else do it)
-const API_URL = "http://localhost:8000"
-const DELAY_MS_BEFORE_OFFLINE = 5000;
+const API_URL = import.meta.env.VITE_API_URL as string;
+const DELAY_MS_BEFORE_OFFLINE = import.meta.env.VITE_OFFLINE_TIMEOUT as number;
 
 
 // define a variable to enable the loopback (call api automatically every 2 seconds)
@@ -42,7 +40,6 @@ export const useProducersStore = defineStore("producers", {
         return { name: producer.name, online: true, selected: producer.selected };
       });
 
-      console.log(allNames);
       return allNames;
     },
 

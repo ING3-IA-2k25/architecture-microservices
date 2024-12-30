@@ -25,9 +25,9 @@ const { initMap , addGPSMarker, focusOnProducer, unselectProducer, resetGPSMarke
 import type { GPS_Coords } from "@/types/gps_coord.types";
 
 
-
 // to change with env vairable
-const wsUrl = 'ws://localhost:8000/ws/front';
+const wsUrl = import.meta.env.VITE_WS_URL;
+console.log(wsUrl);
 
 // setup websocket
 let ws : WebSocket;
@@ -77,7 +77,7 @@ onMounted(async () => {
   ws.onmessage = async (event: MessageEvent) => {
     const msg : string = event.data;
 
-    const [id, latitude, longitude]: [number, number,number] = msg.split(',');
+    const [id, latitude, longitude]: string[] = msg.split(',');
 
     const gps: GPS_Coords = {
       producer_uid: parseInt(id),
@@ -119,16 +119,14 @@ onMounted(async () => {
               v-for="producer in producersStore.producers"
               @emit-select="() => {
                 producer.selected = !producer.selected;
-                console.log(producer.selected);
                 if (producer.selected == false) {
                   unselectProducer(producer.id);
                 } else {
-                  console.log('reset');
                   resetGPSMarkersForProducer(producer.id);
                 }
               }"
               @emit-focus="() => {focusOnProducer(producer.id)}"
-              :name="producer.name" :selected="producer.selected" :online="producer.online">
+              :name="producer.name" :selected="producer.selected" :online="producer!.online ?? true">
               {{ producer.name }}
             </user-card>
 

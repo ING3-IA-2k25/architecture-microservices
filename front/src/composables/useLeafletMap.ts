@@ -30,12 +30,11 @@ export function useLeafletMap() {
 
 
   const updateMap = () => {
-    if (!mapInstance.value ) { //|| !store.graph) {
-      //setTimeout(updateMap, 1000);
-      return;
-    }
+    //if (!mapInstance.value ) { //|| !store.graph) {
+    //  //setTimeout(updateMap, 1000);
+    //  return;
+    //}
 
-    console.log('Updating map...');
 
   };
 
@@ -45,13 +44,12 @@ export function useLeafletMap() {
 
 
   const addGPSMarker = async (gps: GPS_Coords) => {
-    if (!mapInstance.value) {
+    if (!mapInstance.value || !(mapInstance.value instanceof L.Map)) {
       return;
     }
 
     // check if the producer exists
    if (!producersStore.exists(gps.producer_uid)) {
-      console.debug("adding new producer");
       // if not we add it
       await producersStore.addNewProducerByUid(gps.producer_uid);
     }
@@ -89,7 +87,7 @@ export function useLeafletMap() {
 
 
   const resetGPSMarkersForProducer = (producer_uid: number) => {
-    if (!mapInstance.value) {
+    if (!mapInstance.value || !(mapInstance.value instanceof L.Map)) {
       return;
     }
 
@@ -99,22 +97,18 @@ export function useLeafletMap() {
     }
 
 
-    console.debug("resetting markers for producer: " + producer_uid);
     // make sure there are no markers for this producer
     gpsMarkerService.removeMarkerOfId(producer_uid);
 
-    console.debug(coordsStore.prod2coords);
     // redo the markers
     const coords : GPS_position[] = coordsStore.prod2coords.get(producer_uid) ?? [];
 
 
-    console.debug("checking coords: " + coords.length);
     // make sure there are coords
     if (coords.length == 0) {
       return;
     }
 
-    console.debug("adding markers for producer: " + producer_uid);
     // do the first marker
     gpsMarkerService.addMarker(mapInstance.value, coords[0], producer_uid);
 
@@ -128,7 +122,7 @@ export function useLeafletMap() {
 
 
   const focusOnProducer = (producer_uid: number) => {
-    if (!mapInstance.value) {
+    if (!mapInstance.value || !(mapInstance.value instanceof L.Map)) {
       return;
     }
 
