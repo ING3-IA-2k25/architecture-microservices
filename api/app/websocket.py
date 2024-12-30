@@ -19,7 +19,13 @@ class SockerManager:
         self.front_websockets.append(websocket)
 
 
+    async def keep_alive(self, msg: str):
+        print("keep alive loop")
+        for connection in self.consumer_websockets:
+            await connection.send_text(msg)
 
+        await asyncio.sleep(10)
+        await self.keep_alive(msg)
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.consumer_websockets:
@@ -59,6 +65,7 @@ class SockerManager:
 
 
 manager = SockerManager()
+keep_alive_task = asyncio.create_task(manager.keep_alive("Keep alive"))
 
 # create socket for kafka
 @router.websocket("/ws/consumer")
@@ -67,6 +74,7 @@ async def websocket_endpoint_consumer(websocket: WebSocket):
     print("WS/consumer : Connected to websocket")
     
     tasks = []
+
     while websocket.client_state != 3:
         # get data from kafka
         try:
@@ -87,7 +95,6 @@ async def websocket_endpoint_consumer(websocket: WebSocket):
             task = asyncio.create_task(manager.broadcast_to_front(data))
             tasks.append(task)
             task.add_done_callback(lambda x: tasks.remove(x))
-
             
 
         except Exception as e:
@@ -105,7 +112,9 @@ async def websocket_endpoint(websocket: WebSocket):
     # while websocket is alive, don't disconnect
     while websocket.client_state != 3:
         try:
-            await manager.receive_from_consumer(websocket)
+            # to keep the connection alive
+            await websocket.receive_text()
+            print("WS/front : Received data")
 
         except Exception as e:
             print(f"Error: {str(e)}")

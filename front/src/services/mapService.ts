@@ -11,4 +11,11 @@ export default class MapService {
 
     return map;
   }
+
+  zoomTo(map: L.Map, center_lat: number, center_log: number, zoom: number): void {
+    const center = new L.LatLng(center_lat, center_log);
+
+    map.setView(center, zoom);
+  }
 }
+

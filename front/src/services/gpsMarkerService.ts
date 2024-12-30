@@ -44,21 +44,14 @@ export default class GPSMarkerService {
     }
 
     this.markersIdx2LeafMarker.get(producer_id)!.push(circle);
+  }
 
-    // get all the coords of this producer
-    const coords_of_producers : GPS_position[] = this.coordsStore.getCoordsByUid(producer_id);
-
-    // if there no other coords we return
-    if (coords_of_producers.length == 0) {
-      return;
-    }
-
+  public addLine(map: L.Map, coord1: GPS_position, coord2: GPS_position, producer_id: number): void {
     // we draw a line between the last two coords
-    const last_coords : GPS_position = coords_of_producers[coords_of_producers.length - 1];
     const line : L.Polyline = L.polyline(
       [
-        [last_coords.lat, last_coords.lon],
-        [gpsCoords.lat, gpsCoords.lon]
+        [coord1.lat, coord1.lon],
+        [coord2.lat, coord2.lon]
       ],
       {
         color: 'red',
@@ -77,7 +70,7 @@ export default class GPSMarkerService {
   public removeMarkers(): void {
     console.debug('Removing all markers...');
 
-    for (const [_, circles] of this.markersIdx2LeafMarker) {
+    for (const circles of this.markersIdx2LeafMarker.values()) {
       circles.forEach((circle) => circle.remove());
     }
 

@@ -7,6 +7,8 @@ import type { ProducerApiResponse } from "@/types/producer.types";
 //        (it rly start to piss me off so I let someone else do it)
 const API_URL = "http://localhost:8000"
 const DELAY_MS_BEFORE_OFFLINE = 5000;
+
+
 // define a variable to enable the loopback (call api automatically every 2 seconds)
 let loopback : boolean = true;
 
@@ -75,7 +77,7 @@ export const useProducersStore = defineStore("producers", {
 
       for (let i = 0; i < this.producers.length; i++) {
 
-        if (this.producers[i].id === uid) {
+        if (this.producers[i].id == uid) {
           this.producers[i].online = false;
           clearTimeout(this.producers[i].timeout);
           return;
@@ -90,7 +92,9 @@ export const useProducersStore = defineStore("producers", {
 
       for (let i = 0; i < this.producers.length; i++) {
 
-        if (this.producers[i].id === uid) {
+        if (this.producers[i].id == uid) {
+          this.producers[i].online = true;
+
           clearTimeout(this.producers[i].timeout);
           this.producers[i].timeout = setTimeout(() => {
             this.setProducerOffline(uid);
@@ -119,7 +123,7 @@ export const useProducersStore = defineStore("producers", {
       this.producers.push({
         id: prod.id,
         name: prod.name,
-        selected: false,
+        selected: true,
         online: true,
         timeout: setTimeout(() => {
           this.setProducerOffline(prod.id);
@@ -130,9 +134,9 @@ export const useProducersStore = defineStore("producers", {
 
     // return if producers uid exists
     exists(uid: number): boolean {
-
       for (let i = 0; i < this.producers.length; i++) {
-        if (this.producers[i].id === uid) {
+
+        if (this.producers[i].id == uid) {
           return true;
         }
       }
@@ -140,7 +144,16 @@ export const useProducersStore = defineStore("producers", {
       return false
     },
 
+    isSelected(uid: number): boolean {
+      for (let i = 0; i < this.producers.length; i++) {
 
+        if (this.producers[i].id == uid) {
+          return this.producers[i].selected;
+        }
+      }
+
+      return false
+    }
 
 /* old stuff, using api polling
     addNewProducers(prod: Producer[]) {

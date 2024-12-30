@@ -3,14 +3,11 @@
 import UserCard from '@/components/UserCard.vue';
 
 /* eslint-disable*/
+// plugins import
 import { onMounted, ref, onUpdated} from 'vue';
 import "leaflet/dist/leaflet.css";
-import L from 'leaflet'
-import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-//const zoom = ref(12)
-//const center = ref([43.299999, -0.370000])
-
+// stores
 import { useProducersStore } from '@/stores/producers';
 import { useCoordsStore } from '@/stores/coords';
 const producersStore = useProducersStore();
@@ -19,14 +16,38 @@ const coordsStore = useCoordsStore();
 // make sure the loopback is enable
 //producersStore.enableLoopback();
 //coordsStore.enableLoopback();
-//
-import { useLeafletMap } from "@/composables/useLeafletMap";
-const { initMap , addGPSMarker } = useLeafletMap();
 
-// add a marker on the map
+// composable (leaflet)
+import { useLeafletMap } from "@/composables/useLeafletMap";
+const { initMap , addGPSMarker, focusOnProducer, unselectProducer, resetGPSMarkersForProducer }  = useLeafletMap();
+
+// type to format the gps data
 import type { GPS_Coords } from "@/types/gps_coord.types";
 
 
+
+// to change with env vairable
+const wsUrl = 'ws://localhost:8000/ws/front';
+
+// setup websocket
+let ws : WebSocket;
+ws = new WebSocket(wsUrl);
+let keepAlive = setInterval(() => {
+  ws.send('keep alive');
+}, 5000);
+
+ws.onerror = (event: Event) => {
+
+}
+
+ws.onclose = (event: CloseEvent) => {
+  console.debug('ws closed');
+  // retry to connect
+  setTimeout(() => {
+    ws = new WebSocket(wsUrl);
+  }, 500);
+}
+// test
 const gps: GPS_Coords = {
   producer_uid: 5,
   uid: 1,
@@ -36,22 +57,41 @@ const gps: GPS_Coords = {
 
 const gps2: GPS_Coords = {
   producer_uid: 5,
-  uid: 1,
+  uid: 2,
   latitude: 43.29955,
   longitude: -0.370000,
 }
 
+
 onMounted(async () => {
-  initMap('map');
+  const zoom: number = 12;
+  const lat: number = 43.3;
+  const lon: number = -0.37;
+  initMap('map', lat, lon, zoom);
+
+  // test
   await addGPSMarker(gps);
-  addGPSMarker(gps2);
+  await addGPSMarker(gps2);
+
+  // on message
+  ws.onmessage = async (event: MessageEvent) => {
+    const msg : string = event.data;
+
+    const [id, latitude, longitude]: [number, number,number] = msg.split(',');
+
+    const gps: GPS_Coords = {
+      producer_uid: parseInt(id),
+      uid: -1, // we do not need this, we probably should remove it
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+    }
+
+   addGPSMarker(gps);
+  }
+
 });
 
 
-
-onUpdated(() => {
-  console.log('mounted')
-});
 
 
 </script>
@@ -77,7 +117,18 @@ onUpdated(() => {
 
             <user-card
               v-for="producer in producersStore.producers"
-              @emit-select="() => {producer.selected = !producer.selected}" :name="producer.name" :selected="producer.selected" :online="producer.online">
+              @emit-select="() => {
+                producer.selected = !producer.selected;
+                console.log(producer.selected);
+                if (producer.selected == false) {
+                  unselectProducer(producer.id);
+                } else {
+                  console.log('reset');
+                  resetGPSMarkersForProducer(producer.id);
+                }
+              }"
+              @emit-focus="() => {focusOnProducer(producer.id)}"
+              :name="producer.name" :selected="producer.selected" :online="producer.online">
               {{ producer.name }}
             </user-card>
 

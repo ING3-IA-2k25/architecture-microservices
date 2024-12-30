@@ -2,7 +2,11 @@
   <v-container >
     <v-card class="d-flex align-center pa-4 h-16" color="#232634" elevation="8">
       <v-card-text class="font-weight-bold">
-        {{ name }}
+
+        <span class="name" @click="$emit('emit-focus')">
+          {{ name }}
+        </span>
+
 
         <v-chip
           :color="online ? 'green' : 'red'"

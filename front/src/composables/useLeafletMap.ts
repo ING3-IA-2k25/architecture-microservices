@@ -7,9 +7,6 @@ import type { GPS_position } from '@/types/gps_coord.types';
 import type { GPS_Coords }  from '@/types/gps_coord.types';
 import { useCoordsStore } from '@/stores/coords';
 import { useProducersStore } from '@/stores/producers';
-//import { useMetrographStore } from '@/stores/metrograph';
-//import StationMarkerService from '@/services/StationMarkerService';
-//import ConnectionLineService from '@/services/ConnectionLineService';
 
 
 // make the map unique and global
@@ -39,22 +36,12 @@ export function useLeafletMap() {
     }
 
     console.log('Updating map...');
-    //console.log(store.graph.nodes, 'stations');
 
-    //console.log(typeof store.graph.nodes[5].gps);
-    //const validStations = store.graph.nodes.filter(station =>
-    //  station.gps !== null
-    //);
-    //
-    //console.log(validStations.length, 'valid stations');
-    //
-    //stationService.addStationMarkers(mapInstance.value as L.Map, validStations);
-    //connectionService.addConnectionLines(
-    //  mapInstance.value as L.Map,
-    //  store.graph.edges,
-    //  validStations
-    //);
   };
+
+
+
+
 
 
   const addGPSMarker = async (gps: GPS_Coords) => {
@@ -64,6 +51,7 @@ export function useLeafletMap() {
 
     // check if the producer exists
    if (!producersStore.exists(gps.producer_uid)) {
+      console.debug("adding new producer");
       // if not we add it
       await producersStore.addNewProducerByUid(gps.producer_uid);
     }
@@ -72,15 +60,99 @@ export function useLeafletMap() {
       producersStore.resetTimeout(gps.producer_uid);
     }
 
-    // add the marker to the map
+
+    // format the gps position
     const gps_position: GPS_position = {lat: gps.latitude, lon: gps.longitude};
-    gpsMarkerService.addMarker(mapInstance.value, gps_position, gps.producer_uid);
+
+    // check if producer is selected
+    if (producersStore.isSelected(gps.producer_uid)) {
+
+      // add the marker to the map
+      gpsMarkerService.addMarker(mapInstance.value, gps_position, gps.producer_uid);
+
+      // check if there are coords for this producer
+      const old_coords : GPS_position[] = coordsStore.prod2coords.get(gps.producer_uid) ?? [];
+      if (old_coords.length !== 0) {
+        // if there are, we add the line
+        const last_coord : GPS_position = old_coords[old_coords.length - 1];
+        gpsMarkerService.addLine(mapInstance.value, last_coord, gps_position, gps.producer_uid );
+      }
+    }
 
     // add position to the store
     coordsStore.addNewCoord(gps_position, gps.producer_uid);
+
   };
 
 
+
+
+
+  const resetGPSMarkersForProducer = (producer_uid: number) => {
+    if (!mapInstance.value) {
+      return;
+    }
+
+    // if producer does not exist, we do nothing
+    if (!producersStore.exists(producer_uid)) {
+      return;
+    }
+
+
+    console.debug("resetting markers for producer: " + producer_uid);
+    // make sure there are no markers for this producer
+    gpsMarkerService.removeMarkerOfId(producer_uid);
+
+    console.debug(coordsStore.prod2coords);
+    // redo the markers
+    const coords : GPS_position[] = coordsStore.prod2coords.get(producer_uid) ?? [];
+
+
+    console.debug("checking coords: " + coords.length);
+    // make sure there are coords
+    if (coords.length == 0) {
+      return;
+    }
+
+    console.debug("adding markers for producer: " + producer_uid);
+    // do the first marker
+    gpsMarkerService.addMarker(mapInstance.value, coords[0], producer_uid);
+
+    for (let i = 1; i < coords.length; i++) {
+      gpsMarkerService.addMarker(mapInstance.value, coords[i], producer_uid);
+      gpsMarkerService.addLine(mapInstance.value, coords[i-1], coords[i], producer_uid);
+    }
+  }
+
+
+
+
+  const focusOnProducer = (producer_uid: number) => {
+    if (!mapInstance.value) {
+      return;
+    }
+
+    // if producer does not exist, we do nothing
+    if (!producersStore.exists(producer_uid)) {
+      return;
+    }
+
+    const coords : GPS_position[] = coordsStore.prod2coords.get(producer_uid) ?? [];
+
+    if (coords.length == 0) {
+      return;
+    }
+
+    const last_coord = coords[coords.length - 1];
+    mapService.zoomTo(mapInstance.value, last_coord.lat, last_coord.lon, 22);
+  }
+
+
+  const unselectProducer = (producer_uid : number ) => {
+
+    gpsMarkerService.removeMarkerOfId(producer_uid);
+
+  }
 
   onMounted(async () => {
     //await store.loadGraph();
@@ -97,6 +169,9 @@ export function useLeafletMap() {
     mapInstance,
     initMap,
     updateMap,
-    addGPSMarker
+    addGPSMarker,
+    resetGPSMarkersForProducer,
+    focusOnProducer,
+    unselectProducer
   };
 }
