@@ -20,9 +20,8 @@ logger = logging.getLogger(__name__)
 """
 create a websocket connection to the FastAPI server
 """
-async def connect_to_websocket():
-    uri = "ws://localhost:7000/ws/consumer"  # Assuming your FastAPI server is running on port 8000
-    return await websockets.connect(uri)
+async def connect_to_websocket(URL):
+    return await websockets.connect(URL)
 
 
 """
@@ -79,7 +78,7 @@ async def main():
             if name not in producers_dict:
                 logger.info(f"Producer {name} not found in the database")
                 # request to fastapi post method to add new producer                    
-                response = requests.post(f"{API_URL}/api/producers/add", json={"name": name})
+                response = requests.post(f"http://{API_URL}/api/producers/add", json={"name": name})
                 prod = json.loads(response.text)
 
                 producers_dict[name] = prod["id"]
@@ -92,7 +91,7 @@ async def main():
 
                 # TODO: This should not happen or else should be handled better
                 # create a new connection 
-                ws = await connect_to_websocket()
+                ws = await connect_to_websocket(f"ws://{API_URL}/ws/consumer")
 
                 try:
                     await ws.send(f"{producers_dict[name]},{f1},{f2}")
