@@ -61,6 +61,8 @@ class SockerManager:
 
     async def receive_from_consumer(self, websocket: WebSocket):
         data = await websocket.receive_text()
+        print("sending OK to keepalive")
+        await websocket.send_text("OK")
         await self.broadcast_to_front(data)
 
 
@@ -79,7 +81,7 @@ async def websocket_endpoint_consumer(websocket: WebSocket):
         # get data from kafka
         try:
             data = await websocket.receive_text()
-        
+            await websocket.send_text("OK") 
             # print data 
             print(f"DEBUG : Received data: {data}")
             uid, lat, lon = data.split(",")

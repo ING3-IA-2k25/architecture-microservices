@@ -86,6 +86,8 @@ async def main():
             try:
                 # send the data to the fastapi server
                 await ws.send(f"{producers_dict[name]},{f1},{f2}")
+                print("waiting for response")
+                keep_alive = await ws.recv()
             except websockets.exceptions.ConnectionClosedError:
                 logger.error("Connection to the websocket server was closed")
 
@@ -95,6 +97,7 @@ async def main():
 
                 try:
                     await ws.send(f"{producers_dict[name]},{f1},{f2}")
+                    keep_alive = await ws.recv()
                 except websockets.exceptions.ConnectionClosedError:
                     logger.error("Connection to the websocket server was closed 2 times in a row, ")
                     break
