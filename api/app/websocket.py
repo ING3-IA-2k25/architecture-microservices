@@ -65,7 +65,7 @@ class SockerManager:
 
 
 manager = SockerManager()
-keep_alive_task = asyncio.create_task(manager.keep_alive("Keep alive"))
+# keep_alive_task = asyncio.create_task(manager.keep_alive("Keep alive"))
 
 # create socket for kafka
 @router.websocket("/ws/consumer")
