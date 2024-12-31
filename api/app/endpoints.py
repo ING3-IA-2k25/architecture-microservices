@@ -73,3 +73,7 @@ async def add_producer(producer: ProducerInput):
     return output
 
 
+@router.get("/ping")
+async def ping():
+    return {"ping": "pong"}
+                        
