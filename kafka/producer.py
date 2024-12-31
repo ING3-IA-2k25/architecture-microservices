@@ -55,7 +55,7 @@ def generate_random_coordinates(center_lat=43.3, center_lon=-0.37, delta=0.01):
 '''
 # Variables globales pour gérer le déplacement "smooth"
 CURRENT_DIRECTION = random.uniform(0, 2 * math.pi)  # direction initiale en radians
-TURN_AMPLITUDE = 0.01    # plus c’est grand, plus les virages sont brusques
+TURN_AMPLITUDE = 1    # plus c’est grand, plus les virages sont brusques
 STEP = 0.0001            # distance parcourue à chaque appel (en degrés)
 
 def generate_random_coordinates(center_lat=43.29539606077581, 
@@ -112,10 +112,11 @@ def simulate_movement(person_name = "Leo-Paul"):
     topic_name = "gps-coordonates"  # Nom du topic Kafka
 
     print("Début de la simulation des déplacements GPS autour de Pau...")
+    lat, lon = generate_random_coordinates()
     try:
         while True:
             # Générer des coordonnées aléatoires
-            lat, lon = generate_random_coordinates()
+            lat, lon = generate_random_coordinates(lat,lon)
             # Construire le message
             message = build_message(person_name, lat, lon)
             # Envoyer le message au topic Kafka
