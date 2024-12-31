@@ -1,4 +1,4 @@
-FROM node:22.12-alpine3.21 as build-stage
+FROM node:22.12-slim as build-stage
 
 # Create app directory
 WORKDIR /usr/src/app
