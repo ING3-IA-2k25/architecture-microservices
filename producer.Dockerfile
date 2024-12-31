@@ -9,4 +9,4 @@ COPY ./kafka/producer.py /code/producer.py
 COPY .env .
 
 
-ENTRYPOINT python producer.py ${KAFKA_USERNAME}
+ENTRYPOINT python producer.py 
