@@ -98,6 +98,14 @@ python kafka/consumer.py
 
 go to (app)[http://localhost:80]
 
+it's possible that the connection to the api failed, just refresh the page <C-r>
+
+### option available
+
+- click on user name to focus on him
+- user online if we receive a message from him in the last 5 seconds
+- select user to see/hide their tracks
+
 ### setup pgadmin to check the database
 
 go to (pgadmin)[http://localhost:15432]
