@@ -100,6 +100,9 @@ if __name__ == "__main__":
     # check user arguments
     if len(sys.argv) > 1:
         person_name = sys.argv[1]
+        print("used argument: ", person_name)
         simulate_movement(person_name)
     else:
-        simulate_movement()
+        print("No argument found, using environment variable or default value")
+        person_name = os.getenv('KAFKA_USERNAME', 'Leo-Paul')
+        simulate_movement(person_name)
