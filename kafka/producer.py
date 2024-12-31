@@ -5,17 +5,38 @@ import time
 from kafka.vendor import six
 from kafka import KafkaProducer
 
+
 # load server name from env
 import os
-server_name = os.getenv('KAFKA_SERVER_NAME', 'localhost')
+from dotenv import load_dotenv
+load_dotenv()
+
+server_name = os.getenv('KAFKA_CONTAINER_NAME', 'localhost')
+port = os.getenv('KAFKA_CONTAINER_PORT', '9092')
 
 if sys.version_info >= (3, 12, 0):
     sys.modules['kafka.vendor.six.moves'] = six.moves
 
-producer = KafkaProducer(
-    bootstrap_servers=f'{server_name}:9092',  # Adresse du broker Kafka
-    value_serializer=lambda v: v  # Pas de sérialisation automatique
-)
+try :
+    print("Trying to connect to the kafka server: ", server_name , ":" , port) 
+
+    producer = KafkaProducer(
+            bootstrap_servers=f'{server_name}:{port}',  # Adresse du broker Kafka for docker
+            value_serializer=lambda v: v  # Pas de sérialisation automatique
+            )
+except Exception as e:
+    # try to connect to localhost
+    try:
+        print("Trying to connect to the kafka server: localhost:9092")
+
+        producer = KafkaProducer(
+                bootstrap_servers=f'localhost:9092',  # Adresse du broker Kafka
+                value_serializer=lambda v: v  # Pas de sérialisation automatique
+            )
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
 
 # Fonction pour générer des coordonnées aléatoires autour de Pau (43.3, -0.37)
 def generate_random_coordinates(center_lat=43.3, center_lon=-0.37, delta=0.01):
@@ -64,6 +85,8 @@ def simulate_movement(person_name = "Leo-Paul"):
             message = build_message(person_name, lat, lon)
             # Envoyer le message au topic Kafka
             producer.send(topic_name, message)
+            
+            print(message)
             producer.flush()
             print(f"Message envoyé : Nom={person_name}, Lat={lat}, Lon={lon}")
             time.sleep(2)  # Pause de 2 secondes entre chaque message
